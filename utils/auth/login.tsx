@@ -1,13 +1,21 @@
 "use client";
+import { useSearchParams } from "next/dist/client/components/navigation";
 import { useActionState } from "react";
 import { toast } from "sonner";
 import { authenticate } from "./actions/authenticate";
+import GoogleLoginButton from "./components/GoogleLoginButton";
+import { usePopupAuthListener } from "./hooks/usePopupAuthListener";
 
 export default function Login() {
+   const searchParams = useSearchParams();
+   const callbackUrl = searchParams.get("callbackUrl") ?? "";
+
    const [errorMessage, formAction, isPending] = useActionState(
       authenticate,
       undefined,
    );
+
+   usePopupAuthListener();
 
    if (errorMessage) toast.error(errorMessage);
 
@@ -45,6 +53,8 @@ export default function Login() {
                      />
                   </div>
 
+                  <input type="hidden" name="callbackUrl" value={callbackUrl} />
+
                   {errorMessage && (
                      <div className="rounded-lg bg-red-100 text-red-600 text-sm p-2">
                         {errorMessage}
@@ -58,7 +68,9 @@ export default function Login() {
                   >
                      {isPending ? "Signing in..." : "Sign In"}
                   </button>
+                  <GoogleLoginButton />
                </form>
+               <hr />
             </div>
          </div>
       </>

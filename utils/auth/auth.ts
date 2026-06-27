@@ -1,5 +1,7 @@
-import NextAuth, { AuthError, User } from "next-auth";
+import NextAuth, { User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import { SESSION_EXPIRE_TIME } from "../constants";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
    providers: [
@@ -17,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                return null;
             }
 
-            if(password === "testing") return null;
+            if (password === "testing") return null;
 
             user = {
                id: "1",
@@ -34,6 +36,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return user;
          },
       }),
+      Google({
+         clientId: process.env.AUTH_GOOGLE_ID!,
+         clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      }),
    ],
 
    // GUIDE for adding custom attributes to session and jwt:
@@ -43,7 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
    callbacks: {
       async jwt({ token, user }) {
          if (user) {
-            // Existing:
+            // Existing default attributes on token:
             // token.name
             // token.email
 
@@ -56,7 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
 
       async session({ session, token }) {
-         // Existing:
+         // Existing default attributes on session:
          // session.user.name
          // session.user.email
 
@@ -67,5 +73,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
          return session;
       },
+   },
+
+   session: {
+      strategy: "jwt",
+      maxAge: SESSION_EXPIRE_TIME,
+   },
+   jwt: {
+      maxAge: SESSION_EXPIRE_TIME,
    },
 });

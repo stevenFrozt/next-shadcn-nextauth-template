@@ -1,1 +1,3 @@
-export { auth as proxy } from "@/utils/auth/auth"
+import { auth } from "./utils/auth/auth";
+
+export const proxy = auth(async () => {});
